@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres_back
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT}:5432"
+
+volumes:
+  postgres_data:
