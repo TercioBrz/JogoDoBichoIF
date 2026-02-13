@@ -1,0 +1,34 @@
+name: workflow backend-django
+on:
+  push:
+    paths:
+      - 'backend/**'
+
+defaults:
+  run:
+    shell: bash
+    working-directory: backend
+      
+jobs:
+    build:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout Código
+          uses: actions/checkout@v3
+
+        - name: instalação do uv 
+          uses: astral-sh/setup-uv@v5
+          with:
+           version: "latest"
+
+        - name: instalação das dependecias
+          run: uv sync
+
+        - name: subindo o postgres
+          run: docker compose up -d
+
+    test:
+      runs-on: ubuntu-latest
+      steps:
+        - name: subindo o serve
+          run : python manage.py runserver
