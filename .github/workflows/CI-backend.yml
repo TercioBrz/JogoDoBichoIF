@@ -1,58 +1,57 @@
-name: workflow frontend-angular
+name: workflow backend-django
 
 on:
   push:
-
     branches:
       - develop
-
+      
     paths:
-      - 'frontend/**'
-
+      - 'backend/**'
 
 defaults:
   run:
     shell: bash
-    working-directory: frontend
+    working-directory: backend
 
 jobs:
   build:
-    runs-on: ubuntu-latest
 
+    runs-on: ubuntu-latest
+    
     steps:
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
       - name: Checkout Código
         uses: actions/checkout@v4
 
-      - name: Setup Node 24
-        uses: actions/setup-node@v4
+      - name: Instalar uv
+        uses: astral-sh/setup-uv@v5
         with:
-          node-version: 24
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
+          version: "0.4.0"
 
       - name: Instalar dependências
-        run: npm ci
+        run: uv sync
 
-      - name: Build Angular
-        run: npm run build -- --configuration production
+      - name: Migrar banco
+        run: uv run python manage.py migrate
 
   test:
     runs-on: ubuntu-latest
     needs: build
-
     steps:
       - name: Checkout Código
         uses: actions/checkout@v4
 
-      - name: Setup Node 24
-        uses: actions/setup-node@v4
+      - name: Instalar uv
+        uses: astral-sh/setup-uv@v5
         with:
-          node-version: 24
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
+          version: "0.4.0"
 
       - name: Instalar dependências
-        run: npm ci
+        run: uv sync
 
       - name: Rodar testes
-        run: npm run test -- --watch=false --browsers=ChromeHeadless
+        run: pytest core/tests/
