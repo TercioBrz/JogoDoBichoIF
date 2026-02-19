@@ -5,14 +5,14 @@ on:
   push:
     branches:
       - develop
-    paths:
-      - 'frontend/**'
+    # paths:
+    #   - 'frontend/**'
 
   pull_request:
     branches:
       - develop
-    paths:
-      - 'frontend/**'
+    # paths:
+    #   - 'frontend/**'
 
 defaults:
   run:
