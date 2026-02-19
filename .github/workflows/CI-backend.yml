@@ -17,7 +17,7 @@ on:
 defaults:
   run:
     shell: bash
-    working-directory: backend
+    working-directory: backend/core
 
 jobs:
   build:
@@ -45,6 +45,7 @@ jobs:
         run: docker compose up -d
 
       - name: Migrar banco
+
         run: uv run python manage.py migrate
 
   test:
@@ -68,4 +69,4 @@ jobs:
         run: uv sync
 
       - name: Rodar testes
-        run: pytest core/tests/
+        run: pytest tests/
