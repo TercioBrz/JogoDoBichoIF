@@ -1,10 +1,16 @@
 name: workflow backend-django
 
 on:
+
   push:
     branches:
       - develop
-      
+    paths:
+      - 'backend/**'
+
+  pull_request:
+    branches:
+      - develop
     paths:
       - 'backend/**'
 
