@@ -41,7 +41,7 @@ Angular 20+
  npm run serve
 ```
 
-<br>
+<br><br>
 
 
 ![arquitetura](img/ArquiteturaEmCamadas.png)
