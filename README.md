@@ -3,7 +3,7 @@
 
 ```sh
 uv - Python
-Docker
+Postgres -Docker
 Node
 Angular 20+
 ```
@@ -42,3 +42,8 @@ Angular 20+
 ```
 
 # 6️⃣7️⃣
+
+
+![arquitetura](img\ArquiteturaEmCamadas.png)
+![arquitetura](img\contrato.png)
+
