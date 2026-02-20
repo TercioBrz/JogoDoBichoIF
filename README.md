@@ -41,7 +41,7 @@ Angular 20+
  npm run serve
 ```
 
-# 6️⃣7️⃣
+<br>
 
 
 ![arquitetura](img/ArquiteturaEmCamadas.png)
