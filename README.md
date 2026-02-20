@@ -44,6 +44,6 @@ Angular 20+
 # 6️⃣7️⃣
 
 
-![arquitetura](img\ArquiteturaEmCamadas.png)
-![arquitetura](img\contrato.png)
+![arquitetura](img/ArquiteturaEmCamadas.png)
+![arquitetura](img/contrato.png)
 
