@@ -3,7 +3,7 @@
 
 ```sh
 uv - Python
-Postgres -Docker
+Postgres - Docker
 Node
 Angular 20+
 ```
