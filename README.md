@@ -29,10 +29,16 @@ Angular 20+
  docker compose up -d
 ```
 
-### Subindo o Server: Django 🟢
+### Subindo o Server Web: Django 🟢
 
 ```sh
  python manage.py runserver
+```
+
+### Subindo o Server Web: Angular 🔴
+
+```sh
+ npm run serve
 ```
 
 # 6️⃣7️⃣
