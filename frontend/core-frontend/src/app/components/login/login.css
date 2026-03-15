@@ -1,0 +1,14 @@
+:host {
+  display: flex;
+  justify-content: center;   /* centro horizontal */
+  align-items: center;       /* centro vertical */
+  height: 100vh;             /* altura total da tela */
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;    
+  gap: 4px;                     /* remove espaço entre campos */
+  width: 300px;               /* largura do form */
+}
+

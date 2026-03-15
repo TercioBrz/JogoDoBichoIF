@@ -5,6 +5,8 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    # secrets:
+    #   - db_password
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
