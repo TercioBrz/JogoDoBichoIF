@@ -65,7 +65,7 @@ jobs:
           version: "0.4.0"
 
       - name: subindo o banco
-        run: docker compose up
+        run: docker compose up -d
 
       - name: Migrar banco
         run: uv run python manage.py migrate
