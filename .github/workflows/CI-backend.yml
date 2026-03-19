@@ -45,7 +45,6 @@ jobs:
         run: docker compose up -d
 
       - name: Migrar banco
-
         run: uv run python manage.py migrate
 
   test:
@@ -64,6 +63,12 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           version: "0.4.0"
+
+      - name: subindo o banco
+        run: docker compose up
+
+      - name: Migrar banco
+        run: uv run python manage.py migrate
 
       - name: Instalar dependências
         run: uv sync
