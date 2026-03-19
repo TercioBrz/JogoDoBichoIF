@@ -69,4 +69,4 @@ jobs:
         run: uv sync
 
       - name: Rodar testes
-        run: uv run pytest core/tests/
+        run: uv run pytest tests/
