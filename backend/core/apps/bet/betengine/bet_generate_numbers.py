@@ -1,5 +1,7 @@
+import json
 import random as rd
-
+from ..redis_client import r
+from .bet_times import rodada_atual
 def gerar_cinco_milhares():
 
     milhares_sorteadas = list()
@@ -16,6 +18,8 @@ def gerar_cinco_milhares():
                 sorteadas.add(n)
 
         milhares_sorteadas.append(''.join(numero))
+
+    r.set(f"{rodada_atual()}",json.dumps(milhares_sorteadas),ex=1800)
 
     return milhares_sorteadas
 

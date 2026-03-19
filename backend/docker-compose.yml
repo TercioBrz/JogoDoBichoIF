@@ -12,5 +12,12 @@ services:
     ports:
       - "${POSTGRES_PORT}:5432"
 
+  redis:
+    image: redis:7
+    container_name: redis_back
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
 volumes:
   postgres_data:

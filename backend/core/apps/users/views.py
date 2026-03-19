@@ -1,5 +1,3 @@
-import datetime
-
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_http_methods
 from .serializers import UserCreateSerializer
@@ -30,7 +28,6 @@ def create_user_view(request):
         tokens = generate_tokens(user.id)
 
         return JsonResponse({
-            "id": user.id,
             "access_token": tokens["access_token"],
             "access_exp": tokens["access_exp"].isoformat(),
             "refresh_token": tokens["refresh_token"],
@@ -38,7 +35,7 @@ def create_user_view(request):
         }, status=201)
 
     except ValidationError as e:
-        return JsonResponse({"errors": e.messages}, status=400)
+        return JsonResponse({"errors": e.message_dict}, status=400)
 
 @csrf_exempt
 @require_POST
@@ -70,15 +67,20 @@ def login_view(request):
 @csrf_exempt
 @require_POST
 def logout_view(request):
-    auth_header = request.headers.get("Authorization")
 
-    if not auth_header or not auth_header.startswith("Bearer "):
-        return JsonResponse({"error": "Token não fornecido"}, status=401)
+    try:
+        body = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Body inválido"}, status=400)
 
-    token = auth_header.split(" ")[1]
-    AuthServices.logout_service(token)
+    refresh_token = body.get("refresh_token")
 
-    return JsonResponse({"menssage": "Logout realizado com sucesso"}, status=200)
+    if not refresh_token:
+        return JsonResponse({"error": "Refresh token obrigatório"}, status=400)
+
+    AuthServices.logout_service(refresh_token)
+
+    return JsonResponse({"message": "Logout realizado com sucesso"}, status=200)
 
 @csrf_exempt
 @require_POST
@@ -103,7 +105,13 @@ def refresh_view(request):
             return JsonResponse({"erro": "Use o refresh token"}, status=401)
 
         tokens = generate_tokens(payload["user_id"])
-        return JsonResponse({"access_token": tokens["access_token"]}, status=200)
+
+        return JsonResponse({
+            "access_token": tokens["access_token"],
+            "access_exp": tokens["access_exp"].isoformat(),
+            "refresh_token": tokens["refresh_token"],
+            "refresh_exp": tokens["refresh_exp"].isoformat(),
+        }, status=200)
 
     except jwt.ExpiredSignatureError:
         return JsonResponse({"error": "Refresh token expirado"}, status=401)

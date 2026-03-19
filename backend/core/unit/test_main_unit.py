@@ -1,6 +1,6 @@
 
 from .fixtures import milhares,milhares_sorteadas,animal,animais
-from betengine.bet_numbers_checks import BetNumbersChecks
+from apps.bet.betengine.bet_numbers_checks import BetNumbersChecks
 import pytest
 
 def test_que_verificar_se_milhares_sao_geradas_corretamente(milhares_sorteadas):

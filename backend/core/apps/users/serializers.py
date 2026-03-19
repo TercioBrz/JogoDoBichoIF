@@ -24,6 +24,7 @@ class UserCreateSerializer:
             self.errors["password"] = password_error
 
         email_error = validate_email_user(email)
+
         if email_error:
             self.errors["email"] = email_error
 

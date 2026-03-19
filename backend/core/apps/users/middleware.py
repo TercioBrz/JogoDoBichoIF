@@ -13,8 +13,12 @@ class JWTAuthMiddleware:
 
     def __call__(self, request):
         public_routes = ["/api/auth/login/", "/api/auth/refresh/", "/api/auth/register/",]
+        public_prefixes = ["/admin/"]
 
         if request.path in public_routes:
+            return self.get_response(request)
+
+        if any(request.path.startswith(prefix) for prefix in public_prefixes):
             return self.get_response(request)
 
         auth_header = request.headers.get("Authorization")

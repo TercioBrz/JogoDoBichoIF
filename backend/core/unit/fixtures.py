@@ -1,5 +1,5 @@
 import pytest
-from betengine.bet_generate_numbers import gerar_cinco_milhares
+from apps.bet.betengine.bet_generate_numbers import gerar_cinco_milhares
 
 @pytest.fixture
 def milhares_sorteadas():

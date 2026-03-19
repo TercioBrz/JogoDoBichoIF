@@ -1,6 +1,7 @@
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 
 
 User = get_user_model()
@@ -10,8 +11,20 @@ class UserServices:
     @staticmethod
     def create_user_service(username,email,password,first_name):
 
-        if User.objects.filter(email=email).exists():
-            raise ValidationError("Email já Cadastrado")
+        users = User.objects.filter(Q(email=email) | Q(username=username))
+
+        error = {}
+
+        for user in users:
+
+            if user.email == email:
+                error["email"] = "Email ja registrado"
+
+            if user.username == username:
+                error["username"] = "Username ja registrado"
+
+        if error:
+            raise ValidationError(error)
         
         return User.objects.create_user(
             username=username,
