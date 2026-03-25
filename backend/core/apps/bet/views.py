@@ -1,40 +1,61 @@
 import json
 
 from django.http import JsonResponse
-from .betengine.bet_numbers_checks import BetNumbersChecks as Bt
-from .betengine.bet_generate_numbers import gerar_cinco_milhares
-from .services.bet_Services import ServiceBet
+from django.views.decorators.csrf import csrf_exempt
 
-def main_view(request):
-    data = json.loads(request.body)
+from apps.bet.services.bet_Services import ServiceBet
+from .models.FilaModel import FilaRequest
+from django.views.decorators.http import require_POST, require_http_methods
 
-    mod = data["modalidade"]
+from ..users.jwt_utils import decode_token
 
-    bt = Bt(gerar_cinco_milhares())
 
-    modalidade_map = {
-        "grupo":        lambda: bt.modalidade_grupo(mod['grupo'], data.get('head', False)),
-        "dezena":       lambda: bt.modalidade_dezena(mod['dezena'], data.get('head', False)),
-        "centena":      lambda: bt.modalidade_centena(mod['centena'], data.get('head', False)),
-        "milhar":       lambda: bt.modalidade_milhar(mod['milhar'], data.get('head', False)),
-        "duque_grupo":  lambda: bt.modalidade_duque_grupo(mod['duque_grupo']),
-        "duque_dezena": lambda: bt.modalidade_duque_dezena(mod['duque_dezena']),
-        "terno_grupo":  lambda: bt.modalidade_terno_grupo(mod['terno_grupo']),
-        "terno_dezena": lambda: bt.modalidade_terno_dezena(mod['terno_dezena']),
+@csrf_exempt
+def main_bet_view(request):
+    MODALIDADES_VALIDAS = {
+        "grupo", "dezena", "centena", "milhar",
+        "duque_grupo", "duque_dezena", "terno_grupo", "terno_dezena"
     }
 
-    modalidade_escolhida = list(mod.keys())[0]
+    body = json.loads(request.body)
+    header = request.headers.get("Authorization")
 
-    if modalidade_escolhida not in modalidade_map:
+    user = decode_token(header.split(" ")[1])
+
+    chave = list(body.get("modalidade").keys())[0]
+    if chave not in MODALIDADES_VALIDAS:
         return JsonResponse({"success": False, "message": "Modalidade inválida"}, status=400)
 
-    bet = ServiceBet(request,data)
-
+    bet = ServiceBet(user["user_id"], body)
     if not bet.check_saldo():
         return JsonResponse({"success": False, "message": "Saldo insuficiente"}, status=400)
 
-    ganhos = modalidade_map[modalidade_escolhida]()
+    FilaRequest.objects.create(
+        user_id=user["user_id"],
+        dados=body,
+        status='pendente'
+    )
 
-    wins = bet.calcular_ganhos_ou_perdas(ganhos, data['aposta'])
+    return JsonResponse({"success": True, "message": "Aposta enfileirada"}, status=202)
+@csrf_exempt
+def bets(request):
+    pass
 
-    return JsonResponse({"success": True, "ganhos": wins}, status=200)
+@csrf_exempt
+def extrato(request):
+    pass
+
+@csrf_exempt
+@require_http_methods(["PATCH"])
+def transactions_bet(request):
+
+    body = json.loads(request.body)
+
+    if body.get("action") == "deposit":
+        pass
+
+    elif body.get("action") == "withdraw":
+        pass
+
+    else:
+        return  None

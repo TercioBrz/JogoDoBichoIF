@@ -1,7 +1,11 @@
 import json
 import random as rd
 from ..redis_client import r
-from .bet_times import rodada_atual
+from apps.bet.utils import rodada_atual
+from celery import shared_task
+
+
+@shared_task
 def gerar_cinco_milhares():
 
     milhares_sorteadas = list()

@@ -1,51 +1,47 @@
 
 from ...users.models.BetModel import Bet
-from ...users.jwt_utils import decode_token
 from ...users.models.UserModel import User
-
 from django.db.models import F
+from django.db import transaction
 
 class ServiceBet:
+    def __init__(self,user_id,data):
 
-    def __init__(self, request,data):
-        self.token = decode_token(request.headers['Authorization'].split()[1])
+        self.user:str = user_id
         self.data = data
 
     def check_saldo(self):
-        user = User.objects.get(id=self.token["user_id"])
+        user = User.objects.get(id=self.user)
 
-        if self.data["aposta"] > user.balance:
-            return False
+        return self.data["aposta"] <= user.balance
 
-        return True
-
-    def calcular_ganhos_ou_perdas(self, ganhos, aposta):
+    def calcular_ganhos_ou_perdas(self,ganhos):
 
         ganho = 0
 
-        for k in ganhos:
-            ganho = ganhos[k] * aposta
+        for k in ganhos.keys():
+            ganho = ganhos[k] * self.data['aposta']
 
-        if ganho > 0:
-            Bet.objects.create(
-                user_id=self.token["user_id"],
-                win=ganho,
-                loss=0,
-                bet=aposta,
-            )
-            User.objects.filter(id=self.token["user_id"]).update(
-                balance=F('balance') + ganho - aposta
-            )
+        with transaction.atomic():
+            if ganho > 0:
+                Bet.objects.create(
+                    user_id=self.user,
+                    win=ganho,
+                    loss=0,
+                    bet=self.data['aposta'],
+                )
+                User.objects.filter(id=self.user).update(
+                    balance=F('balance') + ganho - self.data['aposta']
+                )
 
-        else:
-            Bet.objects.create(
-                user_id=self.token["user_id"],
-                win=0,
-                loss=aposta,
-                bet=aposta,
-            )
-            User.objects.filter(id=self.token["user_id"]).update(
-                balance=F('balance') - aposta
-            )
+            else:
+                Bet.objects.create(
+                    user_id=self.user,
+                    win=0,
+                    loss=self.data['aposta'],
+                    bet=self.data['aposta'],
+                )
 
-        return ganho
+                User.objects.filter(id=self.user).update(
+                    balance=F('balance') - self.data['aposta']
+                )

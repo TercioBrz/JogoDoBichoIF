@@ -118,8 +118,29 @@ def refresh_view(request):
     except jwt.InvalidTokenError:
         return JsonResponse({"error": "Token inválido"}, status=401)
 
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
+
 @csrf_exempt
 @require_http_methods(["GET"])
 def me_view(request):
-    user = UserServices.get_user_service(request.jwt_user_id)
+    auth_header = request.headers.get("Authorization")
+
+    if not auth_header:
+        return JsonResponse({"error": "Authorization header missing"}, status=401)
+
+    try:
+        token = auth_header.split()[1]
+    except IndexError:
+        return JsonResponse({"error": "Invalid token format"}, status=401)
+
+    try:
+        payload = decode_token(token)
+        user_id = payload["user_id"]
+    except Exception as e:
+        return JsonResponse({"error": "Invalid or expired token"}, status=401)
+
+    user = UserServices.get_user_service(user_id)
+
     return JsonResponse(user, status=200)

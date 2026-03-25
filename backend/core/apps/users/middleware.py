@@ -37,7 +37,7 @@ class JWTAuthMiddleware:
             if payload.get("type") != "access":
                 return JsonResponse({"error": "Use o access token"}, status=401)
 
-            request.jwt_user_id = payload["user_id"]
+            # request.jwt_user_id = payload["user_id"]
             # request.user = User.objects.get(id=payload["user_id"])
 
         except jwt.ExpiredSignatureError:

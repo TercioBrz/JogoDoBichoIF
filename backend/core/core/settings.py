@@ -11,8 +11,11 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+
+from celery import Celery
 from dotenv import  load_dotenv
 import os
+from celery.schedules import crontab
 
 load_dotenv()
 
@@ -90,6 +93,21 @@ DATABASES = {
     }
 }
 
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
+CELERY_ACCEPT_CONTENT = ["application/json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
+
+CELERY_BEAT_SCHEDULE = {
+    'processar-fila-30min': {
+        'task': 'apps.bet.tasks.processar_fila',
+        'schedule': crontab(minute=15),
+    },
+    'gerar-milhar-25min': {
+        'task': 'apps.bet.betengine.bet_generate_numbers.gerar_cinco_milhares',
+        'schedule': crontab(minute=7),
+    },
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
