@@ -45,10 +45,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'apps.users',
-    'apps.bet'
+    'apps.bet',
+    'corsheaders',
+
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -57,6 +60,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "apps.users.middleware.JWTAuthMiddleware",
+
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -99,13 +103,14 @@ CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
 
 CELERY_BEAT_SCHEDULE = {
-    'processar-fila-30min': {
+
+    'processar-fila-a-cada-30min': {
         'task': 'apps.bet.tasks.processar_fila',
-        'schedule': crontab(minute=15),
+        'schedule': crontab(minute='*/10'),
     },
-    'gerar-milhar-25min': {
+    'gerar-milhar-a-cada-25min': {
         'task': 'apps.bet.betengine.bet_generate_numbers.gerar_cinco_milhares',
-        'schedule': crontab(minute=7),
+        'schedule': crontab(minute='*/9'),
     },
 }
 
@@ -130,6 +135,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:4200",
+]
+
+CORS_ALLOW_CREDENTIALS = True
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/

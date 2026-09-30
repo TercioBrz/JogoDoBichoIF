@@ -1,0 +1,28 @@
+<form class="form-container" [formGroup]="form" (ngSubmit)="login()">
+
+  <mat-form-field appearance="outline">
+    <mat-label>Username</mat-label>
+    <input matInput formControlName="username">
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Password</mat-label>
+    <input matInput type="password" formControlName="password">
+  </mat-form-field>
+
+
+  <app-buttongreen 
+  type="submit" 
+  [disabled]="form.invalid"
+  >
+    Entrar
+
+  </app-buttongreen>
+
+</form>
+
+
+<div class="register-container">
+  <p>Sem Conta Ainda?</p>
+  <a routerLink="/auth/register" class="register-link">Criar</a>
+</div>

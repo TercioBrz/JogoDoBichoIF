@@ -10,3 +10,4 @@ class User(AbstractUser):
     class Meta:
         db_table = "custom_user"
         ordering = ["date_joined"]
+

@@ -1,0 +1,13 @@
+.botoes-aposta {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+
+}
+
+.botoes-aposta button {
+  width: 250px;
+  background-color: #2e7d32;
+  color: white;
+}   

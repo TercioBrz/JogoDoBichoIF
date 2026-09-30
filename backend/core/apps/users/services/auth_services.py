@@ -1,7 +1,7 @@
 
 from django.contrib.auth import get_user_model, authenticate
 from ..jwt_utils import generate_tokens
-from ..models.BlacListModel import TokenBlacklist
+from ..models.BlackListModel import TokenBlacklist
 
 User = get_user_model()
 

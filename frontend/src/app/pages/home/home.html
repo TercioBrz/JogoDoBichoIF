@@ -1,0 +1,22 @@
+<app-toolbar-main></app-toolbar-main>
+
+<div class="main-content">
+
+  <div class="cards-container">
+
+    @for (item of items; track item.id) {
+      <app-bet-card
+        [image]="item.image"
+        [title]="item.title"
+        [number]="item.number"
+        [dezenas]="item.dezenas"
+      />
+    }
+
+  </div>
+
+  <app-sidebar-main></app-sidebar-main>
+
+</div>
+
+<router-outlet></router-outlet>

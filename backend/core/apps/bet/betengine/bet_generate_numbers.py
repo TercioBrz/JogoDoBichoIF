@@ -4,7 +4,6 @@ from ..redis_client import r
 from apps.bet.utils import rodada_atual
 from celery import shared_task
 
-
 @shared_task
 def gerar_cinco_milhares():
 
@@ -23,7 +22,7 @@ def gerar_cinco_milhares():
 
         milhares_sorteadas.append(''.join(numero))
 
-    r.set(f"{rodada_atual()}",json.dumps(milhares_sorteadas),ex=1800)
+    r.set(f"{rodada_atual()}",json.dumps(milhares_sorteadas),ex=605)
 
     return milhares_sorteadas
 

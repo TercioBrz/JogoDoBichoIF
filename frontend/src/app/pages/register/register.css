@@ -1,0 +1,33 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 75vh;
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+  width: 300px;
+}
+
+.login-container {
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 300px;
+}
+
+.login-link {
+  color: #6c63ff;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.login-link:hover {
+  text-decoration: underline;
+}

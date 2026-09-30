@@ -1,6 +1,5 @@
 from django.http import JsonResponse
 from .jwt_utils import decode_token
-from .services.auth_services import AuthServices
 from django.contrib.auth import get_user_model
 import jwt
 
@@ -12,37 +11,37 @@ class JWTAuthMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        public_routes = ["/api/auth/login/", "/api/auth/refresh/", "/api/auth/register/",]
-        public_prefixes = ["/admin/"]
+        public_routes = ["/api/auth/login/", "/api/auth/refresh/", "/api/auth/register/", "/api/auth/logout/"]
 
         if request.path in public_routes:
             return self.get_response(request)
 
-        if any(request.path.startswith(prefix) for prefix in public_prefixes):
-            return self.get_response(request)
+        token = request.headers.get("Authorization",None)
+        token = token.split(" ")[1] if token else None
 
-        auth_header = request.headers.get("Authorization")
+        print(token)
 
-        if not auth_header or not auth_header.startswith("Bearer "):
-            return JsonResponse({"error": "Token não fornecido"}, status=401)
-
-        token = auth_header.split(" ")[1]
-
-        if AuthServices.is_blacklisted(token):
-            return JsonResponse({"error": "Token inválido"}, status=401)
+        if not token:
+            return JsonResponse({"errors": "Token não fornecido"}, status=401)
 
         try:
             payload = decode_token(token)
 
             if payload.get("type") != "access":
-                return JsonResponse({"error": "Use o access token"}, status=401)
+                return JsonResponse({"errors": "Use o access token"}, status=401)
 
-            # request.jwt_user_id = payload["user_id"]
-            # request.user = User.objects.get(id=payload["user_id"])
+            user = payload["user_id"]
+
+            request.user = user
 
         except jwt.ExpiredSignatureError:
-            return JsonResponse({"error": "Token expirado"}, status=401)
-        except jwt.InvalidTokenError:
-            return JsonResponse({"error": "Token inválido"}, status=401)
+            return JsonResponse({"errors": "Token expirado"}, status=401)
+
+        except jwt.InvalidTokenError as e:
+            print("ERRO JWT:", type(e).__name__, str(e))
+            return JsonResponse(
+                {"errors": "Token invalido mid"},
+                status=401
+            )
 
         return self.get_response(request)

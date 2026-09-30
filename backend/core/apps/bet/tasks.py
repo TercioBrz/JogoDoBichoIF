@@ -1,12 +1,11 @@
 import logging
 from celery import shared_task
 from django.db import transaction
-
+from .redis_client import r
 from .models.FilaModel import FilaRequest
 from .services.bet_core import processar_dados
-
+from .utils import rodada_atual
 logger = logging.getLogger(__name__)
-
 
 @shared_task
 def processar_fila():
@@ -27,3 +26,5 @@ def processar_fila():
 
     if FilaRequest.objects.filter(status='pendente').exists():
         processar_fila.delay()
+
+    return rodada_atual()

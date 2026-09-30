@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 
+from apps.users.repositorys.user_repository import userrepository
 
 User = get_user_model()
 
@@ -34,9 +35,9 @@ class UserServices:
         )
 
     @staticmethod
-    def get_user_service(ID):
+    def me(user_id):
 
-        user = User.objects.get(id=ID)
+        user = userrepository.get_user_by_id(user_id)
 
         data = {
             "id": user.id,

@@ -1,0 +1,31 @@
+<h2 mat-dialog-title>Opções da aposta</h2>
+
+<mat-dialog-content>
+
+  <p>Escolha o tipo de aposta:</p>
+
+  <div class="botoes-aposta">
+
+    <button mat-raised-button (click)="abrirGrupo()">
+      Grupo: <strong>1 - 25</strong>
+    </button>
+
+    <button mat-raised-button (click)="abrirDezena()">
+      Dezena: <strong>01 - 99</strong>
+    </button>
+
+    <button mat-raised-button >
+      Centena: <strong>100 - 999</strong>
+    </button>
+
+  </div>
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+
+  <button mat-button mat-dialog-close>
+    Cancelar
+  </button>
+
+</mat-dialog-actions>

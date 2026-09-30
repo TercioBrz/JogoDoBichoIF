@@ -11,37 +11,40 @@ class ServiceBet:
         self.data = data
 
     def check_saldo(self):
+
         user = User.objects.get(id=self.user)
 
-        return self.data["aposta"] <= user.balance
+        return self.data["valor"] <= user.balance
 
     def calcular_ganhos_ou_perdas(self,ganhos):
 
         ganho = 0
 
         for k in ganhos.keys():
-            ganho = ganhos[k] * self.data['aposta']
+            ganho = ganhos[k] * self.data['valor']
 
         with transaction.atomic():
+
             if ganho > 0:
                 Bet.objects.create(
                     user_id=self.user,
                     win=ganho,
                     loss=0,
-                    bet=self.data['aposta'],
+                    bet=self.data['valor'],
                 )
                 User.objects.filter(id=self.user).update(
-                    balance=F('balance') + ganho - self.data['aposta']
+                    balance=F('balance') + ganho - self.data['valor']
                 )
 
             else:
+                
                 Bet.objects.create(
                     user_id=self.user,
                     win=0,
-                    loss=self.data['aposta'],
-                    bet=self.data['aposta'],
+                    loss=self.data['valor'],
+                    bet=self.data['valor'],
                 )
 
                 User.objects.filter(id=self.user).update(
-                    balance=F('balance') - self.data['aposta']
+                    balance=F('balance') - self.data['valor']
                 )

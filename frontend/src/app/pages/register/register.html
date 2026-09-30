@@ -1,0 +1,37 @@
+<form class="form-container" [formGroup]="form" (ngSubmit)="register()">
+
+  <mat-form-field appearance="outline">
+    <mat-label>Username</mat-label>
+    <input matInput formControlName="username">
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>First Name</mat-label>
+    <input matInput formControlName="first_name">
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Email</mat-label>
+    <input matInput formControlName="email">
+  </mat-form-field>
+  
+
+  <mat-form-field appearance="outline">
+    <mat-label>Password</mat-label>
+    <input matInput type="password" formControlName="password">
+  </mat-form-field>
+
+  <app-buttongreen 
+  type="submit" 
+  [disabled]="form.invalid"
+  >
+    Cadastrar
+
+  </app-buttongreen>
+
+</form>
+
+<div class="login-container">
+  <p>Já Possui Cadastro?</p>
+  <a routerLink="/auth/login" class="login-link">Entrar</a>
+</div>

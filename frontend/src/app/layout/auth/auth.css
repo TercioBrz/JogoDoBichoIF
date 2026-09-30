@@ -1,0 +1,22 @@
+/* ✅ funciona */
+mat-toolbar {
+    background-color: #abd5a7 !important;
+    height: 100px;
+    justify-content: center;
+}
+
+.toolbar-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: center;
+    width: 100%;
+}
+
+img {
+    margin-left: 20px;
+}
+
+span {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    text-align: center; 
+}

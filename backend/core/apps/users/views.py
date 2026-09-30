@@ -1,6 +1,6 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_http_methods
-from .serializers import UserCreateSerializer
+from .serializers import UserCreateSerializer, UserLoginSerializer
 from django.http import JsonResponse
 from .services.user_services import UserServices
 from .services.auth_services import AuthServices
@@ -8,34 +8,59 @@ from .jwt_utils import generate_tokens, decode_token
 from django.core.exceptions import ValidationError
 import json
 import jwt
+from ..utils.token_cookie_utils import set_refresh_token_cookie
 
 @csrf_exempt
 @require_POST
-def create_user_view(request):
+def register_view(request):
+
     try:
         body = json.loads(request.body)
+
     except json.JSONDecodeError:
-        return JsonResponse({"errors": "Body inválido"}, status=400)
+        return JsonResponse({
+            "success": False,
+            "data": "",
+            "errors": {
+                'JSON': "body invalido"
+            },
+            "message": ""
+
+        }, status=400)
 
     serializer = UserCreateSerializer(body)
 
     if not serializer.is_valid():
-        return JsonResponse({"errors": serializer.errors}, status=400)
+        return JsonResponse({
+            "success": False,
+            "data": "",
+            "errors": serializer.errors,
+            "message": ""
+
+        }, status=400)
 
     try:
-        user = UserServices.create_user_service(**serializer.validated_data)
+        
+        UserServices.create_user_service(**serializer.validated_data)
 
-        tokens = generate_tokens(user.id)
+        response = JsonResponse({
+            "success": True,
+            "data": "",
+            "errors": {},
+            "message": "User criado com Sucesso!"
 
-        return JsonResponse({
-            "access_token": tokens["access_token"],
-            "access_exp": tokens["access_exp"].isoformat(),
-            "refresh_token": tokens["refresh_token"],
-            "refresh_exp": tokens["refresh_exp"].isoformat(),
         }, status=201)
 
+        return response
+
     except ValidationError as e:
-        return JsonResponse({"errors": e.message_dict}, status=400)
+        return JsonResponse({
+            "success": False,
+            "data": "",
+            "errors": e.message_dict,
+            "message": ""
+
+        }, status=400)
 
 @csrf_exempt
 @require_POST
@@ -43,104 +68,105 @@ def login_view(request):
 
     try:
         body = json.loads(request.body)
+
     except json.JSONDecodeError:
-        return JsonResponse({"error": "Body inválido"}, status=400)
+        return JsonResponse({
+            "success": False,
+            "data": "",
+            "errors": {
+                'Json': "Body invalido"
+            },
+            "message": ""
+        }, status=400)
 
     username = body.get("username")
     password = body.get("password")
 
-    if not username or not password:
-        return JsonResponse({"error": "Username e password obrigatórios"}, status=400)
+    token = AuthServices.login_service(username, password)
 
-    tokens = AuthServices.login_service(username, password)
+    if token is None:
+        return JsonResponse({
+            "success": False,
+            "data": "",
+            "errors": {
+                "User": "Usuário não encontrado"
+            },
+            "message": ""
 
-    if tokens is None:
-        return JsonResponse({"error": "Usuário Não encontrado"}, status=401)
+        }, status=404)
 
-    return JsonResponse({
-        "access_token": tokens["access_token"],
-        "access_exp": tokens["access_exp"].isoformat(),
-        "refresh_token": tokens["refresh_token"],
-        "refresh_exp": tokens["refresh_exp"].isoformat(),
-    }, status=200)
+    response: JsonResponse = JsonResponse({
+            "success": True,
+            "data": {
+                "access_token": token['access_token'],
+                "name": username
+
+            },
+            "errors": {},
+            "message": "Login realizado com sucesso"
+
+        }, status=200)
+
+    return set_refresh_token_cookie(response,token) 
 
 @csrf_exempt
 @require_POST
 def logout_view(request):
-
-    try:
-        body = json.loads(request.body)
-    except json.JSONDecodeError:
-        return JsonResponse({"error": "Body inválido"}, status=400)
-
-    refresh_token = body.get("refresh_token")
+    refresh_token = request.COOKIES.get("refresh_token")
 
     if not refresh_token:
-        return JsonResponse({"error": "Refresh token obrigatório"}, status=400)
+        return JsonResponse({"errors": {
+        "Token":"Refresh Token não Encontrado"}
+    }, status=400)
 
     AuthServices.logout_service(refresh_token)
 
-    return JsonResponse({"message": "Logout realizado com sucesso"}, status=200)
+    response = JsonResponse({"message": "Logout Realizado com Sucesso"}, status=200)
+    response.delete_cookie("refresh_token")
+
+    return response
 
 @csrf_exempt
 @require_POST
 def refresh_view(request):
-    try:
-        body = json.loads(request.body)
-    except json.JSONDecodeError:
-        return JsonResponse({"error": "Body inválido"}, status=400)
-
-    refresh_token = body.get("refresh_token")
+    
+    refresh_token = request.COOKIES.get("refresh_token")
 
     if not refresh_token:
-        return JsonResponse({"error": "Refresh token obrigatório"}, status=400)
-
-    if AuthServices.is_blacklisted(refresh_token):
-        return JsonResponse({"error": "Token inválido"}, status=401)
+        return JsonResponse({"errors": {
+            "Token": "Refresh Token não Encontrado"}
+        }, status=400)
 
     try:
         payload = decode_token(refresh_token)
 
         if payload.get("type") != "refresh":
-            return JsonResponse({"erro": "Use o refresh token"}, status=401)
+            return JsonResponse({"errors": {"Use o refresh token"}}, status=401)
 
-        tokens = generate_tokens(payload["user_id"])
+        user_id = payload['user_id']
+        tokens = generate_tokens(user_id)
 
-        return JsonResponse({
-            "access_token": tokens["access_token"],
-            "access_exp": tokens["access_exp"].isoformat(),
-            "refresh_token": tokens["refresh_token"],
-            "refresh_exp": tokens["refresh_exp"].isoformat(),
+        response = JsonResponse({
+
+            "success": True,
+            "data": {
+                'access_token': tokens["access_token"],
+            },
+            "errors": {},
+            "message": "Token Renovado"
+
         }, status=200)
 
-    except jwt.ExpiredSignatureError:
-        return JsonResponse({"error": "Refresh token expirado"}, status=401)
-    except jwt.InvalidTokenError:
-        return JsonResponse({"error": "Token inválido"}, status=401)
+        return set_refresh_token_cookie(response, tokens)
 
-from django.http import JsonResponse
-from django.views.decorators.http import require_http_methods
-from django.views.decorators.csrf import csrf_exempt
+    except jwt.ExpiredSignatureError:
+        return JsonResponse({"errors": {"Token": "Refresh Token Expirado"}}, status=401)
+    except jwt.InvalidTokenError:
+        return JsonResponse({"errors": {"Token": "Token Inválido"}}, status=401)
 
 @csrf_exempt
 @require_http_methods(["GET"])
 def me_view(request):
-    auth_header = request.headers.get("Authorization")
 
-    if not auth_header:
-        return JsonResponse({"error": "Authorization header missing"}, status=401)
-
-    try:
-        token = auth_header.split()[1]
-    except IndexError:
-        return JsonResponse({"error": "Invalid token format"}, status=401)
-
-    try:
-        payload = decode_token(token)
-        user_id = payload["user_id"]
-    except Exception as e:
-        return JsonResponse({"error": "Invalid or expired token"}, status=401)
-
-    user = UserServices.get_user_service(user_id)
-
+    user = UserServices.me(request.user)
     return JsonResponse(user, status=200)

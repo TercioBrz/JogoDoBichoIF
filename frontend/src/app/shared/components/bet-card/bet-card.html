@@ -1,0 +1,25 @@
+<mat-card class="card">
+
+  <img
+    mat-card-image
+    [src]="image()"
+    [alt]="title()"
+  >
+
+  <mat-card-content>
+
+    <h3>
+      {{ number() }}. {{ title() }}
+    </h3>
+
+    <div class="dezenas">
+
+      @for (dezena of dezenas(); track dezena) {
+        <span>{{ dezena }}</span>
+      }
+
+    </div>
+
+  </mat-card-content>
+
+</mat-card>

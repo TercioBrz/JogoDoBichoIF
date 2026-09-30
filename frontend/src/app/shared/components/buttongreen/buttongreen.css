@@ -1,0 +1,12 @@
+:host {
+  display: flex;
+  justify-content: center;   /* centro horizontal */
+  align-items: center;       /* centro vertical */
+  height: 5vh;             /* altura total da tela */
+  display: flex;
+  flex-direction: column;    
+  gap: 0px;                     /* remove espaço entre campos */
+  width: 300px;
+}
+
+

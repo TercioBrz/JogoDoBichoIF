@@ -1,0 +1,15 @@
+<mat-toolbar class="toolbar" >
+  <button mat-icon-button>
+    <mat-icon>menu</mat-icon>
+  </button>
+
+  <span>Djungle</span>
+
+  <div style="margin-left: auto;">
+    <button mat-button>{{Username}}</button>
+    <button mat-button (click)="extract()">
+        Extrato
+    </button>
+    <button mat-button (click)="logout()"> Sair</button>
+  </div>
+</mat-toolbar>
